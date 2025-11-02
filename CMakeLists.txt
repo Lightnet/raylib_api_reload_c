@@ -28,7 +28,7 @@ set_property(TARGET raylib PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # Main executable (links raylib statically for persistent context)
 add_executable(main src/main.c)
-target_link_libraries(main PRIVATE raylib)
+# target_link_libraries(main PRIVATE raylib)
 target_include_directories(main PRIVATE include)
 target_compile_definitions(main PRIVATE HOT_RELOAD)  # Enable hot-reload mode
 
