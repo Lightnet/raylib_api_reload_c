@@ -29,3 +29,4 @@ GAME_API void LoadRaylibAPI(const RaylibAPI *api);
 GAME_API void GameInit(void);
 GAME_API void GameUpdate(void);  // Called every frame
 GAME_API int GetReloadFlag(void);  // 1 if 'R' pressed
+GAME_API int GetGameVersion(void);

@@ -42,4 +42,4 @@ int GetReloadFlag(void) {
 }
 
 // Export version info (optional, for reload detection)
-GAME_API int GetGameVersion(void) { return 1; }  // Bump on changes
+int GetGameVersion(void) { return 1; }  // Bump on changes
