@@ -75,7 +75,7 @@ int main(void) {
             if (get_reload && get_reload()) {
                 UnloadDLL();
                 printf("[Main] Press Enter after rebuilding game.dll...\n");
-                getchar();  // Wait for Enter
+                // getchar();  // Wait for Enter
                 LoadDLL();  // Reload
             }
         } else {

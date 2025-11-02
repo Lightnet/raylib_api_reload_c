@@ -22,7 +22,8 @@ void GameUpdate(void) {
 
     // Example drawing (hot-reload this!)
     // DrawText("Hot Reload Me! Press R to reload.", 10, 10, 20, DARKGRAY);
-    api.DrawText("Hot Reload Me! Press R to reload Test.", 10, 10, 20, DARKGRAY);
+    api.DrawText("Hello Window!", 10, 10, 20, DARKGRAY);
+    api.DrawText("Hot Reload Me! Press R to reload!", 10, 30, 20, DARKGRAY);
     // printf("[Game] render...\n");
 
     // Check for 'R' press (KEY_R = 82)
