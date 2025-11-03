@@ -1,69 +1,53 @@
-// #define HOT_RELOAD
-#include "raylib.h"
-#include <stdio.h>
+#include "game.h"
+// #include <raylib.h>  // For types, defines, and log levels (e.g., LOG_INFO, Color, RAYWHITE)
+#include <stddef.h>
 
-static int reload_flag = 0;
-static int initialized = 0;  // Guard: Init only once per process
-static int should_close = 0;  // Reset on reload if needed
+// Note this use pointer as it can't be use normal DrawText as we can refs them.
+// There are way to do it.
 
-void GameInit(void) {
-    if (initialized) {
-        printf("[Game DLL] Already initialized - skipping InitWindow on reload\n");
-        return;
-    }
-    InitWindow(800, 600, "raylib Hot Reload Instance - Press R");
-    SetTargetFPS(60);
-    initialized = 1;
-    printf("[Game DLL] Window initialized (first time only)\n");
+// Function pointers for raylib functions (set from main to use the shared instance)
+static void (*TraceLogPtr)(int logType, const char *text, ...) = NULL;
+static void (*DrawTextPtr)(const char *text, int posX, int posY, int fontSize, Color color) = NULL;
+static void (*DrawCirclePtr)(int centerX, int centerY, float radius, Color color) = NULL;
+static int (*GetScreenWidthPtr)(void) = NULL;
+static int (*GetScreenHeightPtr)(void) = NULL;
+
+// Export the setter for raylib functions
+void SetRaylibFunctions(
+    void (*traceLog)(int logType, const char *text, ...),
+    void (*drawText)(const char *text, int posX, int posY, int fontSize, Color color),
+    void (*drawCircle)(int centerX, int centerY, float radius, Color color),
+    int (*getScreenWidth)(void),
+    int (*getScreenHeight)(void)
+) {
+    TraceLogPtr = traceLog;
+    DrawTextPtr = drawText;
+    DrawCirclePtr = drawCircle;
+    GetScreenWidthPtr = getScreenWidth;
+    GetScreenHeightPtr = getScreenHeight;
 }
 
-void GameUpdate(void) {
-    // Raylib auto-skips if no window - but with guard, window persists
-    if (!IsWindowReady()) {
-        // Fallback if somehow lost
-        printf("[Game DLL] Window lost? Re-init not allowed.\n");
-        return;
-    }
+#define TraceLog(...)          if (TraceLogPtr) TraceLogPtr(__VA_ARGS__)
+#define DrawText(...)          if (DrawTextPtr) DrawTextPtr(__VA_ARGS__)
+#define DrawCircle(...)        if (DrawCirclePtr) DrawCirclePtr(__VA_ARGS__)
+#define GetScreenWidth()       (GetScreenWidthPtr ? GetScreenWidthPtr() : 0)
+#define GetScreenHeight()      (GetScreenHeightPtr ? GetScreenHeightPtr() : 0)
 
-    if (WindowShouldClose()) {
-        // Don't close here - let main handle exit
-        should_close = 1;  // Or add separate close flag
-        printf("[Game DLL] Close requested - flagging for exit\n");
-        return;
-    }
-
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
-
-    DrawText("Hot Reload Me! Guarded Init - No Re-Init Errors.", 10, 10, 20, DARKGRAY);
-    DrawText("Press R to reload (window stays open).", 10, 40, 20, BLUE);
-    DrawFPS(10, 70);
-    // DrawText("Test Update.", 10, 90, 20, BLUE);// test change
-
-    if (IsKeyPressed(KEY_R)) {
-        reload_flag = 1;
-        printf("[Game DLL] Reload triggered! Rebuild + Enter.\n");
-    }
-
-    EndDrawing();
+// Export functions for DLL
+void InitGame(void) {
+    // Initialization logic (e.g., reset game state)
+    if (TraceLogPtr) TraceLogPtr(LOG_INFO, "Game initialized!");
 }
 
-int GetReloadFlag(void) {
-    int flag = reload_flag;
-    reload_flag = 0;
-    return flag;
+void UpdateGame(void) {
+    // Update logic (e.g., handle input, update positions)
 }
 
-int GetShouldClose(void) {
-    return should_close;
-}
-
-// Close guard: Uninit only on final unload (optional)
-// GAME_API void GameCleanup(void);  // Add to game.h
-void GameCleanup(void) {
-    if (initialized && IsWindowReady()) {
-        CloseWindow();
-        initialized = 0;
-        printf("[Game DLL] Cleaned up window\n");
+void DrawGame(void) {
+    // Draw logic (example: draw some text and a circle)
+    if (DrawTextPtr && DrawCirclePtr && GetScreenWidthPtr && GetScreenHeightPtr) {
+        // DrawTextPtr("Press R to hot reload!test", 10, 10, 20, DARKGRAY);
+        DrawText("Press R to hot reload! test2!", 10, 10, 20, DARKGRAY);
+        DrawCirclePtr(GetScreenWidthPtr() / 2, GetScreenHeightPtr() / 2, 50, RED);
     }
 }

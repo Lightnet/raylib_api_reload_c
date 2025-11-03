@@ -1,18 +1,33 @@
-#pragma once
+#ifndef GAME_H
+#define GAME_H
 
-#if defined(_WIN32)
-    #if defined(BUILD_DLL)
-        #define GAME_API __declspec(dllexport)
-    #else
-        #define GAME_API __declspec(dllimport)
-    #endif
-#else
-    #define GAME_API
+#include <raylib.h>  // For raylib function addresses
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-GAME_API void GameInit(void); // Called once (guarded)
-GAME_API void GameUpdate(void);  // Called every frame
-GAME_API int GetReloadFlag(void);  // 1 if 'R' pressed
-GAME_API int GetGameVersion(void);
-GAME_API int GetShouldClose(void);  // Close detection
-GAME_API void GameCleanup(void);  // Optional uninit
+
+#ifdef _WIN32
+#  define EXPORT __declspec(dllexport)
+#else
+#  define EXPORT __attribute__((visibility("default")))
+#endif
+
+EXPORT void InitGame(void);
+EXPORT void UpdateGame(void);
+EXPORT void DrawGame(void);
+EXPORT void SetRaylibFunctions(  // New: To receive raylib function pointers from main
+    void (*traceLog)(int logType, const char *text, ...),
+    void (*drawText)(const char *text, int posX, int posY, int fontSize, Color color),
+    void (*drawCircle)(int centerX, int centerY, float radius, Color color),
+    int (*getScreenWidth)(void),
+    int (*getScreenHeight)(void)
+);
+
+#ifdef __cplusplus
+}
+#endif
+
+
+#endif

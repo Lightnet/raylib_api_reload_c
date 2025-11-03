@@ -27,14 +27,21 @@ endif()
 set_property(TARGET raylib PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # Main executable (links raylib statically for persistent context)
-add_executable(main src/main.c)
-# target_link_libraries(main PRIVATE raylib)
-target_include_directories(main PRIVATE include)
-target_compile_definitions(main PRIVATE HOT_RELOAD)  # Enable hot-reload mode
+add_executable(main src/main.c src/loader.c)
+target_link_libraries(main PRIVATE raylib)
+target_include_directories(main PRIVATE 
+    include 
+    ${raylib_SOURCE_DIR}/src
+)  # For external.h if needed
+# target_compile_definitions(main PRIVATE HOT_RELOAD)  # Enable hot-reload mode
 
 # Game DLL (shared lib, hot-reloadable)
 add_library(game SHARED src/game.c)
 target_link_libraries(game PRIVATE raylib)
-target_include_directories(game PRIVATE include)
-target_compile_definitions(game PRIVATE BUILD_DLL HOT_RELOAD)  # Export for DLL
+target_include_directories(game PRIVATE 
+    include 
+    ${raylib_SOURCE_DIR}/src
+)  # For external.h if needed
+# target_compile_definitions(logic PRIVATE BUILD_DLL HOT_RELOAD _LOGIC_EXTERNAL) # Export for DLL  # Custom flag for extern
 set_target_properties(game PROPERTIES PREFIX "" SUFFIX ".dll" OUTPUT_NAME "game")
+target_link_libraries(game PRIVATE -Wl,--export-all-symbols)  # Force export if needed
